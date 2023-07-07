@@ -89,21 +89,25 @@ const getall = async ( req, res ) => {
           fatherName: fatherName || family.fatherName,
           motherName: motherName || family.motherName,
           children: children || family.children,
-            familyImage: family.familyImage
+          childrenImage: family.childrenImage
         }
 
-        if ( req.files && req.files[ "familyImage" ] ) {
-            const oldFamilyImagePath = `uploads/${ family.familyImage }`
-            if ( fs.existsSync( oldFamilyImagePath ) ) {
-                fs.unlinkSync(oldFamilyImagePath)
+        if ( req.files && req.files[ "childrenImage" ] ) {
+            // bodyData.childrenImage.forEach((image) => {
+            const oldChildrenImagePath = family.childrenImage.map( (image) => `uploads/${ image }`);
+            oldChildrenImagePath.forEach( (oldImage) =>{
+            if ( fs.existsSync( oldImage ) ) {
+                fs.unlinkSync(oldImage)
             }
-            bodyData.familyImage = req.files.familyImage[ 0 ].filename;
+        });
+            // bodyData.childrenImage = req.files.childrenImage[ 0 ].filename;
+            bodyData.childrenImage = req.files["childrenImage"].map( (file) => file.filename);
         }
-        const newFamilyImage = await FamilyModel.findByIdAndUpdate( familyId, bodyData, { new: true } )
-            if ( newFamilyImage ) {
+        const newChildrenImage = await FamilyModel.findByIdAndUpdate( familyId, bodyData, { new: true } )
+            if ( newChildrenImage ) {
                 res.status( 200 ).json( {
                     message: "Updated successfully.",
-                    data: newFamilyImage
+                    data: newChildrenImage
                 })
             } else {
                 res.status( 404 ).json( {
@@ -115,7 +119,9 @@ const getall = async ( req, res ) => {
             message: e.message
         })
     }
+
 }
+
   
   // Delete a family
   const deleteF = async ( req, res ) => {
@@ -129,11 +135,11 @@ const getall = async ( req, res ) => {
         const deletedFamily = await FamilyModel.findByIdAndDelete( familyId );
         if ( deletedFamily ) {
             res.status( 200 ).json( {
-                message: "Deleted successfully"
+                message: "Family profile Deleted successfully"
             })
         } else {
             res.status( 404 ).json( {
-                message: "Your problem is bigger than our own"
+                message: "Family not deleted "
             })
         }
     } catch ( e ) {
